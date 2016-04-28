@@ -73,6 +73,7 @@ function parseURL(item){
 	};
 	var url = item.url;
 	//overate the parseResult.folder & parseResult.filename
+	//write code here
     
 	return parseResult;
 }
