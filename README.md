@@ -4,16 +4,7 @@ It aims to build an extension which let the users browse without the limitation 
 ###Requirement
 * chrome <br>
 * OSX 10.9 or later
-* having such folder under your default download path
-```
-/html_database ---/espn
-                |
-                --/nba
-                |
-                --/nytimes
-                |
-                --/unknwon
-```     
+
 ###How to run
 type "chrome://extensions/" in your chrome
 ```
