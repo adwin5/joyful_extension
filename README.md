@@ -15,6 +15,6 @@ Then user needs to create /espn , /nba, /nytimes, /unknwon under /html_database
                 |
                 --/unknwon
 ```              
-######TODO: Algorith to parse the url and determine which foler (/nba, /espn ...) and the file name. 
+######TODO: Algorithm to parse the url and determine which foler (/nba, /espn ...) and the file name. 
 ######Code should be in parseUrl().
 
