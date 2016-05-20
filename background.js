@@ -1,12 +1,13 @@
 
 //set interval of update
-setInterval(function(){updateDownload();}
-  , 10000);
+setInterval(updateDownload, 10000);
+
 
 function updateDownload(){
-	var url_1 = "http://www.nba.com/";
-	var url_2 = "http://espn.go.com/";
-	chrome.downloads.download({url: url_2}, function(id) {});
+	var url_1 = "http://allison.ee.washington.edu/thomas/mast/video/video1_mast.mp4";
+  //getVideoSets(url_1, 10 * 10000);
+  //chrome.downloads.download({url: url_1}, function(id) {});
+  chrome.tabs.create( {url: action_url});
 }
 
 //rename and overwiate setting
@@ -74,6 +75,8 @@ function parseURL(item){
 	var url = item.url;
 	//overate the parseResult.folder & parseResult.filename
 	//write code here
+
     
 	return parseResult;
 }
+
