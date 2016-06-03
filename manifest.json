@@ -3,11 +3,12 @@
   "version": "1.2",
   "description": "pre-download and store the given websites in users computer",
   "permissions": [
+    "tabs",
     "history",
     "downloads", "<all_urls>"
   ],
   "background": {
-    "scripts": ["background.js", "bundle.js"],
+    "scripts": ["background.js"],
     "persistent": false
   },
   "browser_action": {

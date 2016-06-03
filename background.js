@@ -1,82 +1,68 @@
+'use strict';
+var REG_START = /^(http(s)?:\/\/)|(www\.)/g;
+var REG_END = /.(edu|com|me).*$/;
+var DOWNLOAD_DIR = '/Users/wenlucheng/Downloads/html_database/mp4/';
+var selectedId = -1;
+var READ_DIR = 'file:///Users/wenlucheng/Desktop/Github/joyful_extension/';
+var videoSets;
 
-//set interval of update
-setInterval(updateDownload, 10000);
-
-
-function updateDownload(){
-	var url_1 = "http://allison.ee.washington.edu/thomas/mast/video/video1_mast.mp4";
-  //getVideoSets(url_1, 10 * 10000);
-  //chrome.downloads.download({url: url_1}, function(id) {});
-  chrome.tabs.create( {url: action_url});
+function refreshLanguage() {
+    chrome.tabs.detectLanguage(null, function (language) {
+        if (language == " invalid_language_code") {
+            language = "???";
+        }
+        chrome.browserAction.setBadgeText({
+            text: language,
+            tabId: selectedId
+        });
+    });
 }
 
-//rename and overwiate setting
-chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
-  
-  //alert(item.url);
-  suggest({filename: generateFilename(item),
-           conflict_action: 'overwrite',
-           conflictAction: 'overwrite'});
+chrome.tabs.onUpdated.addListener(function (tabId, props, updatedtab) {
+    if (props.status === "complete" && tabId === selectedId) {
+        refreshLanguage();
+    }
 });
 
-function generateFilename(item){
-  var d = new Date();
-  var filename;
-  //if no file folder???
-  var prefixFilename;
-  var parseResult = parseURL(item);
-  switch(parseResult.folder){
-  	case 0:
-  		prefixFilename = "/nba/";
-  		break; 
-  	case 1:
-  		prefixFilename = "/espn/";
-  		break;
-  	case 2:
-  		prefixFilename = "/nytimes/";
-  		break;			
-  	default:
-  		prefixFilename = "/unknown/";	
-  }
-  // Because of overwrite, the file donwloaded this Monday will overwrite the file downloaded on last Monday
-  // For example, on Wednesday, d.getDay() === 3
-  // html_database is the root foler
-  filename = "html_database"+prefixFilename+parseResult.filename+d.getDay()+".html"; 
-  return filename;
+function readText() {
+    var x = new XMLHttpRequest();
+    x.onload = function(){
+        videoSets = x.responseText;
+    };
+    x.open("GET", READ_DIR + 'videoSets.txt', true);
+    x.send();
 }
 
-//This funciton determines which folder the downloaded websites belond to
-//-1 - unknown
-// 0 - nba
-// 1 - espn
-// 2 - nwtimes
-// .
-// .
-// .
-// example :
-// Below are NBA
-// "http://www.nba.com/" 
-// "http://www.nba.com/tntovertime/?ls=iref:nbahpt6a"
-// "http://global.nba.com/articles/gamestream_second_screen.html#!/20160427?ds=single&gameDate=2016-04-27&showFooter=false&cid=nbacom:secondscreen%3Fls%3Diref:nbahpts"
-// "http://allball.blogs.nba.com/2016/04/26/messi-has-a-present-for-curry/?ls=iref:nbahppt"
-// Below are espn
-// "http://espn.go.com/nba/game?gameId=400874421"
-// "http://espn.go.com/nfl/story/_/id/15414505/nfl-sees-no-need-reopen-settlement-talks-tom-brady-nflpa"
-// Below are New York Times
-// "http://www.nytimes.com/"
-// "http://nyti.ms/26uSvTZ"
-// "http://www.nytimes.com/2016/04/28/world/americas/colombia-farc-child-soldiers.html?_r=0"
-// "http://www.nytimes.com/2016/04/28/us/politics/donald-trump-foreign-policy-speech.html"
-function parseURL(item){
-	var parseResult = {
-		"folder" : -1,
-		"filename" : ""
-	};
-	var url = item.url;
-	//overate the parseResult.folder & parseResult.filename
-	//write code here
-
-    
-	return parseResult;
+// open corresponding local file
+function openLocalFile(url) {
+    // var target = 'http://allison.ee.washington.edu/thomas/mast/video/video1_mast.mp4';
+    var topUrl = 'http://allison.ee.washington.edu/thomas/mast/';
+    var localPath = url.replace(REG_START, '');
+    localPath = localPath.replace(REG_END, '') + '/';
+    var videoFileName = url.replace(topUrl, '');
+    videoFileName = videoFileName.split('/').join('_');
+    var localUrl = "file://" + DOWNLOAD_DIR + localPath + videoFileName;
+    readText();
+    if (videoSets.includes(url)) {
+        chrome.tabs.update({
+            //selected: true,
+            url: localUrl
+        });
+    }
 }
 
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+    chrome.tabs.get(activeInfo.tabId, function (tab) {
+        openLocalFile(tab.url);
+    });
+});
+
+chrome.tabs.onSelectionChanged.addListener(function (tabId, props) {
+    selectedId = tabId;
+    refreshLanguage();
+});
+
+chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+    selectedId = tabs[0].id;
+    refreshLanguage();
+});
